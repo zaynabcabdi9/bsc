@@ -95,7 +95,6 @@ type StateObject struct {
 	code Code // contract bytecode, which gets set when code is loaded
 
 	//originStorage  *sync.Map // Storage cache of original entries to dedup rewrites, reset for every transaction
-
 	pendingStorage Storage // Storage entries that need to be flushed to disk, at the end of an entire block
 	dirtyStorage   Storage // Storage entries that have been modified in the current transaction execution
 	fakeStorage    Storage // Fake storage which constructed by caller for debugging purpose.
@@ -137,7 +136,6 @@ func newObject(db *StateDB, address common.Address, data Account) *StateObject {
 		data.Root = emptyRoot
 	}
 	// Check whether the storage exist in pool, new originStorage if not exist
-
 	db.sharedStorage.checkSharedStorage(address)
 
 	return &StateObject{
@@ -268,6 +266,8 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 	}
 
 	if value, cached := s.db.getOriginStorage(s.address, key); cached {
+		//log.Info("check object on:"+address.String(), "not finish , new one")
+		*hit = true
 		return value.(common.Hash)
 	}
 
