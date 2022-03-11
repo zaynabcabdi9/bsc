@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"math/big"
-	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/cachemetrics"
@@ -95,10 +94,11 @@ type StateObject struct {
 	trie Trie // storage trie, which becomes non-nil on first access
 	code Code // contract bytecode, which gets set when code is loaded
 
-	originStorage  *sync.Map // Storage cache of original entries to dedup rewrites, reset for every transaction
-	pendingStorage Storage   // Storage entries that need to be flushed to disk, at the end of an entire block
-	dirtyStorage   Storage   // Storage entries that have been modified in the current transaction execution
-	fakeStorage    Storage   // Fake storage which constructed by caller for debugging purpose.
+	//originStorage  *sync.Map // Storage cache of original entries to dedup rewrites, reset for every transaction
+
+	pendingStorage Storage // Storage entries that need to be flushed to disk, at the end of an entire block
+	dirtyStorage   Storage // Storage entries that have been modified in the current transaction execution
+	fakeStorage    Storage // Fake storage which constructed by caller for debugging purpose.
 
 	// Cache flags.
 	// When an object is marked suicided it will be delete from the trie
@@ -136,15 +136,16 @@ func newObject(db *StateDB, address common.Address, data Account) *StateObject {
 	if data.Root == (common.Hash{}) {
 		data.Root = emptyRoot
 	}
-	// Check whether the storage exist in pool, if not exist
-	storageMap := db.sharedStorage.GetOrInsertStorage(address)
+	// Check whether the storage exist in pool, new originStorage if not exist
+
+	db.sharedStorage.checkSharedStorage(address)
 
 	return &StateObject{
-		db:             db,
-		address:        address,
-		addrHash:       crypto.Keccak256Hash(address[:]),
-		data:           data,
-		originStorage:  &storageMap,
+		db:       db,
+		address:  address,
+		addrHash: crypto.Keccak256Hash(address[:]),
+		data:     data,
+		//	originStorage:  &storageMap,
 		pendingStorage: make(Storage),
 		dirtyStorage:   make(Storage),
 	}
@@ -266,9 +267,7 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 		return value
 	}
 
-	//	if value, cached := s.originStorage[key]; cached {
-	if value, cached := s.originStorage.Load(key); cached {
-		*hit = true
+	if value, cached := s.db.getOriginStorage(s.address, key); cached {
 		return value.(common.Hash)
 	}
 
@@ -328,7 +327,7 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 		}
 		value.SetBytes(content)
 	}
-	s.originStorage.Store(key, value)
+	s.db.setOriginStorage(s.address, key, value)
 	return value
 }
 
@@ -401,7 +400,7 @@ func (s *StateObject) finalise(prefetch bool) {
 	}
 	start := time.Now()
 	for key, value := range s.dirtyStorage {
-		originValue, _ := s.originStorage.Load(key)
+		originValue, _ := s.db.getOriginStorage(s.address, key)
 		if value != originValue.(common.Hash) {
 			slotsToPrefetch = append(slotsToPrefetch, common.CopyBytes(key[:])) // Copy needed for closure
 		}
@@ -440,11 +439,11 @@ func (s *StateObject) updateTrie(db Database) Trie {
 	usedStorage := make([][]byte, 0, len(s.pendingStorage))
 	for key, value := range s.pendingStorage {
 		// Skip noop changes, persist actual changes
-		originValue, _ := s.originStorage.Load(key)
+		originValue, _ := s.db.getOriginStorage(s.address, key)
 		if value == originValue.(common.Hash) {
 			continue
 		}
-		s.originStorage.Store(key, value)
+		s.db.setOriginStorage(s.address, key, value)
 
 		var v []byte
 		if (value == common.Hash{}) {
