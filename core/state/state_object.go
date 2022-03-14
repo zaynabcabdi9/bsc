@@ -136,7 +136,9 @@ func newObject(db *StateDB, address common.Address, data Account) *StateObject {
 		data.Root = emptyRoot
 	}
 	// Check whether the storage exist in pool, new originStorage if not exist
-	db.sharedStorage.checkSharedStorage(address)
+	if db != nil {
+		db.sharedStorage.checkSharedStorage(address)
+	}
 
 	return &StateObject{
 		db:       db,
@@ -266,7 +268,6 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 	}
 
 	if value, cached := s.db.getOriginStorage(s.address, key); cached {
-		//log.Info("check object on:"+address.String(), "not finish , new one")
 		*hit = true
 		return value.(common.Hash)
 	}
@@ -400,8 +401,8 @@ func (s *StateObject) finalise(prefetch bool) {
 	}
 	start := time.Now()
 	for key, value := range s.dirtyStorage {
-		originValue, _ := s.db.getOriginStorage(s.address, key)
-		if value != originValue.(common.Hash) {
+		originValue, cached := s.db.getOriginStorage(s.address, key)
+		if cached && value != originValue.(common.Hash) {
 			slotsToPrefetch = append(slotsToPrefetch, common.CopyBytes(key[:])) // Copy needed for closure
 		}
 	}
@@ -439,8 +440,8 @@ func (s *StateObject) updateTrie(db Database) Trie {
 	usedStorage := make([][]byte, 0, len(s.pendingStorage))
 	for key, value := range s.pendingStorage {
 		// Skip noop changes, persist actual changes
-		originValue, _ := s.db.getOriginStorage(s.address, key)
-		if value == originValue.(common.Hash) {
+		originValue, cached := s.db.getOriginStorage(s.address, key)
+		if cached && value == originValue.(common.Hash) {
 			continue
 		}
 		s.db.setOriginStorage(s.address, key, value)
