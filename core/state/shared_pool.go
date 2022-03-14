@@ -13,9 +13,9 @@ type SharedStorage struct {
 	shared_map map[common.Address]sync.Map
 }
 
-func NewSharedStorage() SharedStorage {
+func NewSharedStorage() *SharedStorage {
 	sharedMap := make(map[common.Address]sync.Map, 1000)
-	return SharedStorage{
+	return &SharedStorage{
 		poolLock:   &sync.RWMutex{},
 		shared_map: sharedMap,
 	}

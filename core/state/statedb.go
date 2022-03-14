@@ -118,7 +118,7 @@ type StateDB struct {
 	stateObjectsDirty   map[common.Address]struct{} // State objects modified in the current execution
 
 	// shared_pool to store L1 originStorage of stateObjects
-	sharedStorage SharedStorage
+	sharedStorage *SharedStorage
 
 	// DB error.
 	// State objects are used by the consensus core and VM which are
