@@ -1838,5 +1838,6 @@ func (s *StateDB) GetSharedStorageAddr() *SharedStorage {
 }
 
 func (s *StateDB) GetSharedStorageSize() int {
+
 	return len(s.sharedStorage.shared_map)
 }

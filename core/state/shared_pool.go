@@ -55,3 +55,9 @@ func (storage *SharedStorage) checkSharedStorage(address common.Address) {
 		storage.poolLock.Unlock()
 	}
 }
+
+func (storage *SharedStorage) getSize() int {
+	storage.poolLock.RLock()
+	defer storage.poolLock.RUnlock()
+	return len(storage.shared_map)
+}
