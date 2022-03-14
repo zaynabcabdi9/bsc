@@ -18,6 +18,8 @@ package core
 
 import (
 	"context"
+	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"sync/atomic"
 	"time"
 
@@ -76,6 +78,8 @@ func (p *statePrefetcher) Prefetch(block *types.Block, statedb *state.StateDB, c
 	for i := 0; i < prefetchThread; i++ {
 		go func(idx int) {
 			newStatedb := statedb.CopyWithSharedStorage()
+			log.Info("prefetch procsss statedb sharedStorage address %p\\n", newStatedb.GetSharedStorageAddr())
+			fmt.Printf("prefetch procsss statedb sharedStorage address %p\\n", newStatedb.GetSharedStorageAddr())
 			gaspool := new(GasPool).AddGas(block.GasLimit())
 			blockContext := NewEVMBlockContext(header, p.bc, nil)
 			evm := vm.NewEVM(blockContext, vm.TxContext{}, statedb, p.config, cfg)
