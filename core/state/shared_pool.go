@@ -21,7 +21,7 @@ func NewSharedStorage() *SharedStorage {
 	}
 }
 
-func (storage *SharedStorage) GetStorage(address common.Address, key common.Hash) (interface{}, bool) {
+func (storage *SharedStorage) getStorage(address common.Address, key common.Hash) (interface{}, bool) {
 	storage.poolLock.RLock()
 	storageMap, ok := storage.shared_map[address]
 	storage.poolLock.RUnlock()
