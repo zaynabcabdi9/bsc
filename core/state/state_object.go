@@ -268,6 +268,13 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 	}
 
 	if value, cached := s.db.getOriginStorage(s.address, key); cached {
+		routeid := cachemetrics.Goid()
+		isSyncMainProcess := cachemetrics.IsSyncMainRoutineID(routeid)
+		if isSyncMainProcess {
+			fmt.Println("main process get value from mem stateObject %s key , %s ", s.address, key)
+		} else {
+			fmt.Println("prefetch process get value from mem stateObject %s  key , %s ", s.address, key)
+		}
 		*hit = true
 		return value.(common.Hash)
 	}
@@ -332,9 +339,9 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 	routeid := cachemetrics.Goid()
 	isSyncMainProcess := cachemetrics.IsSyncMainRoutineID(routeid)
 	if isSyncMainProcess {
-		fmt.Println("main process get value from disk  key , %s ", key)
+		fmt.Println("main process get value from disk  stateObject %s, key , %s ", s.address, key)
 	} else {
-		fmt.Println("prefetch process get value from disk  key , %s ", key)
+		fmt.Println("prefetch process get value from disk stateObject %s key , %s ", s.address, key)
 	}
 
 	return value

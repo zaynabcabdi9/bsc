@@ -14,7 +14,7 @@ type SharedStorage struct {
 }
 
 func NewSharedStorage() *SharedStorage {
-	sharedMap := make(map[common.Address]sync.Map, 1000)
+	sharedMap := make(map[common.Address]sync.Map)
 	return &SharedStorage{
 		poolLock:   &sync.RWMutex{},
 		shared_map: sharedMap,
