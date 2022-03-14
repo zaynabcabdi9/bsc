@@ -78,8 +78,8 @@ func (p *statePrefetcher) Prefetch(block *types.Block, statedb *state.StateDB, c
 	for i := 0; i < prefetchThread; i++ {
 		go func(idx int) {
 			newStatedb := statedb.CopyWithSharedStorage()
-			log.Info("prefetch procsss statedb sharedStorage address %p\\n", newStatedb.GetSharedStorageAddr())
-			fmt.Printf("prefetch procsss statedb sharedStorage address %p\\n", newStatedb.GetSharedStorageAddr())
+			log.Info("prefetch procsss statedb sharedStorage address %p\n", newStatedb.GetSharedStorageAddr())
+			fmt.Println("prefetch procsss statedb sharedStorage address %p\n", newStatedb.GetSharedStorageAddr())
 			gaspool := new(GasPool).AddGas(block.GasLimit())
 			blockContext := NewEVMBlockContext(header, p.bc, nil)
 			evm := vm.NewEVM(blockContext, vm.TxContext{}, statedb, p.config, cfg)
@@ -96,6 +96,7 @@ func (p *statePrefetcher) Prefetch(block *types.Block, statedb *state.StateDB, c
 				}
 				newStatedb.Prepare(tx.Hash(), header.Hash(), i)
 				precacheTransaction(msg, p.config, gaspool, newStatedb, header, evm)
+				fmt.Println("prefetch procsss statedb sharedStorage size %v\n", newStatedb.GetSharedStorageSize())
 			}
 		}(i)
 	}

@@ -2129,8 +2129,8 @@ func (bc *BlockChain) insertChain(chain types.Blocks, verifySeals bool) (int, er
 		// For diff sync, it may fallback to full sync, so we still do prefetch
 		if len(block.Transactions()) >= prefetchTxNumber {
 			//throwaway := statedb.Copy()
-			log.Info("main procsss statedb sharedStorage address %p\\n", statedb.GetSharedStorageAddr())
-			fmt.Printf("main procsss statedb sharedStorage address %p\\n", statedb.GetSharedStorageAddr())
+			log.Info("main procsss statedb sharedStorage address %p\n", statedb.GetSharedStorageAddr())
+			fmt.Println("main procsss statedb sharedStorage address %p", statedb.GetSharedStorageAddr())
 			go func(start time.Time, followup *types.Block, throwaway *state.StateDB, interrupt *uint32) {
 				bc.prefetcher.Prefetch(followup, throwaway, bc.vmConfig, &followupInterrupt)
 			}(time.Now(), block, statedb, &followupInterrupt)

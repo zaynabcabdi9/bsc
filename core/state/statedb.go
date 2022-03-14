@@ -1836,3 +1836,7 @@ func (s *StateDB) setOriginStorage(address common.Address, key common.Hash, val 
 func (s *StateDB) GetSharedStorageAddr() *SharedStorage {
 	return s.sharedStorage
 }
+
+func (s *StateDB) GetSharedStorageSize() int {
+	return len(s.sharedStorage.shared_map)
+}
