@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/cachemetrics"
@@ -256,6 +257,20 @@ func (s *StateObject) GetCommittedState(db Database, key common.Hash, hit *bool,
 				cachemetrics.RecordMinerTotalCosts("MINER_L1_STORAGE", start)
 			}
 		}
+		var testMap sync.Map
+		testKey := common.HexToHash("0x75808d7721ca136a472157da58f24790bdf36249c43af0a279803a3f4794e334")
+		testValue := 1
+		testMap.Store(testKey, testValue)
+		_, cacahed := testMap.Load(testKey)
+		if cacahed {
+			fmt.Println("test map get value succ")
+		}
+		testMap.Range(func(key, value interface{}) bool {
+			k := key.(common.Hash)
+			v := value.(int)
+			fmt.Println("test map range value:", k, v)
+			return true
+		})
 	}()
 	// If the fake storage is set, only lookup the state here(in the debugging mode)
 	if s.fakeStorage != nil {
