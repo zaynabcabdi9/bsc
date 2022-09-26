@@ -63,10 +63,9 @@ participating.
 It expects the genesis file as argument.`,
 	}
 	initNetworkCommand = cli.Command{
-		Action:    utils.MigrateFlags(initNetwork),
-		Name:      "init-network",
-		Usage:     "Bootstrap and initialize a new genesis block, and nodekey, config files for network nodes",
-		ArgsUsage: "<genesisPath>",
+		Action: utils.MigrateFlags(initNetwork),
+		Name:   "init-network",
+		Usage:  "Bootstrap and initialize a new genesis block, and nodekey, config files for network nodes",
 		Flags: []cli.Flag{
 			utils.InitNetworkDir,
 			utils.InitNetworkPort,
@@ -275,30 +274,14 @@ func initNetwork(ctx *cli.Context) error {
 		}
 	}
 
-	// Make sure we have a valid genesis JSON
-	genesisPath := ctx.Args().First()
-	if len(genesisPath) == 0 {
-		utils.Fatalf("Must supply path to genesis JSON file")
-	}
-	file, err := os.Open(genesisPath)
-	if err != nil {
-		utils.Fatalf("Failed to read genesis file: %v", err)
-	}
-	defer file.Close()
-
-	genesis := new(core.Genesis)
-	if err := json.NewDecoder(file).Decode(genesis); err != nil {
-		utils.Fatalf("invalid genesis file: %v", err)
-	}
 	enodes := make([]*enode.Node, size)
 
 	// load config
 	var config gethConfig
-	err = loadConfig(cfgFile, &config)
+	err := loadConfig(cfgFile, &config)
 	if err != nil {
 		return err
 	}
-	config.Eth.Genesis = genesis
 
 	for i := 0; i < size; i++ {
 		stack, err := node.New(&config.Node)
