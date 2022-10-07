@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"fmt"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -50,8 +51,10 @@ type (
 
 func (evm *EVM) precompile(addr common.Address) (PrecompiledContract, bool) {
 	var precompiles map[common.Address]PrecompiledContract
+	fmt.Println("contracts1")
 	switch {
 	case evm.chainRules.IsNano:
+		fmt.Println("contracts1 is PrecompiledContractsIsNano")
 		precompiles = PrecompiledContractsIsNano
 	case evm.chainRules.IsBerlin:
 		precompiles = PrecompiledContractsBerlin

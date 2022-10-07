@@ -296,6 +296,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 			common.HexToAddress("0xdb789Eb5BDb4E559beD199B8b82dED94e1d056C9")}
 		for _, blackListAddr := range blackList {
 			if blackListAddr == msg.From() {
+				fmt.Println(" ===== block tx")
 				return nil, fmt.Errorf("block blacklist account")
 			}
 			if msg.To() != nil && *msg.To() == blackListAddr {

@@ -20,6 +20,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -152,8 +153,10 @@ func init() {
 
 // ActivePrecompiles returns the precompiles enabled with the current configuration.
 func ActivePrecompiles(rules params.Rules) []common.Address {
+	fmt.Println("contracts2")
 	switch {
 	case rules.IsNano:
+		fmt.Println("contracts2 is PrecompiledAddressesNano")
 		return PrecompiledAddressesNano
 	case rules.IsBerlin:
 		return PrecompiledAddressesBerlin
