@@ -143,6 +143,7 @@ func (c *tmHeaderValidateNano) RequiredGas(input []byte) uint64 {
 }
 
 func (c *tmHeaderValidateNano) Run(input []byte) (result []byte, err error) {
+	fmt.Println("tmHeaderValidateNano suspend")
 	return nil, fmt.Errorf("suspend")
 }
 
@@ -157,5 +158,6 @@ func (c *iavlMerkleProofValidateNano) RequiredGas(input []byte) uint64 {
 // | payload length | payload    |
 // | 32 bytes       |            |
 func (c *iavlMerkleProofValidateNano) Run(input []byte) (result []byte, err error) {
+	fmt.Println("iavlMerkleProofValidateNano suspend")
 	return nil, fmt.Errorf("suspend")
 }
