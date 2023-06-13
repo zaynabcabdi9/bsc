@@ -1740,17 +1740,8 @@ func (p *Parlia) GetFinalizedHeader(chain consensus.ChainHeaderReader, header *t
 		return nil
 	}
 
-	for snap.Attestation != nil && snap.Attestation.SourceNumber >= header.Number.Uint64()-backward {
-		if snap.Attestation.TargetNumber == snap.Attestation.SourceNumber+1 {
-			return chain.GetHeaderByHash(snap.Attestation.SourceHash)
-		}
-
-		snap, err = p.snapshot(chain, snap.Attestation.SourceNumber, snap.Attestation.SourceHash, nil)
-		if err != nil {
-			log.Error("Unexpected error when getting snapshot",
-				"error", err, "blockNumber", snap.Attestation.SourceNumber, "blockHash", snap.Attestation.SourceHash)
-			return nil
-		}
+	if snap.Attestation != nil && snap.Attestation.SourceNumber >= header.Number.Uint64()-backward {
+		return chain.GetHeaderByHash(snap.Attestation.SourceHash)
 	}
 
 	return FindAncientHeader(header, backward, chain, nil)
